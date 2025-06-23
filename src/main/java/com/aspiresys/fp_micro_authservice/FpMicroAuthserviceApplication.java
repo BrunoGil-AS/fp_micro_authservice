@@ -43,8 +43,6 @@ public class FpMicroAuthserviceApplication {
 						.build();
 				userRepo.save(user);
 				System.out.println("Default user created: " + user.getUsername());
-				
-				
 			}
 			
 		}

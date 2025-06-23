@@ -86,8 +86,13 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-            .formLogin(Customizer.withDefaults());
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/auth/api/register").permitAll()
+                .anyRequest().authenticated())
+            .httpBasic(Customizer.withDefaults()) // Usar autenticación básica para APIs
+            //.formLogin(form -> form.disable()); // Deshabilitar login por formulario para APIs
+            .formLogin(Customizer.withDefaults()); // Habilitar login por formulario para aplicaciones web
 
         return http.build();
     }
