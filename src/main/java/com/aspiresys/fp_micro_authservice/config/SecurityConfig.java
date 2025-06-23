@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,8 +19,12 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -63,10 +68,19 @@ public class SecurityConfig {
         OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer.authorizationServer();
 
         http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
             .with(authorizationServerConfigurer, authorizationServer -> {
-                authorizationServer.oidc(Customizer.withDefaults()); // Puedes quitar esto si no usas OpenID Connect
-            });
+            authorizationServer.oidc(Customizer.withDefaults());
+            })
+            .exceptionHandling(exceptions -> exceptions
+            .authenticationEntryPoint(
+                (request, response, authException) -> {
+                // Redirige al frontend con el error si ocurre un fallo de autenticación
+                response.sendRedirect("http://localhost:3000/callback?error=unauthorized");
+                }
+            )
+            );
 
         return http.build();
     }
@@ -86,23 +100,17 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
+            .csrf(csrf -> csrf
+            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/api/register").permitAll()
                 .anyRequest().authenticated())
-            .httpBasic(Customizer.withDefaults()) // Usar autenticación básica para APIs
-            //.formLogin(form -> form.disable()); // Deshabilitar login por formulario para APIs
-            .formLogin(Customizer.withDefaults()); // Habilitar login por formulario para aplicaciones web
+            .httpBasic(Customizer.withDefaults())
+            .formLogin(Customizer.withDefaults());
 
         return http.build();
     }
-
-    // Servicio de usuarios personalizado (inyectado desde tu implementación)
-    //@Bean
-    //@Primary
-    //public UserDetailsService userDetailsService(MyUserDetailsService uds) {
-    //    return uds;
-    //}
 
     // Codificador de contraseñas (para guardar y verificar contraseñas hasheadas)
     @Bean
@@ -168,6 +176,32 @@ public class SecurityConfig {
                 context.getClaims().claim("roles", roles);
             }
         };
+    }
+
+    /**
+     * Configures CORS (Cross-Origin Resource Sharing) for the application.
+     * <p>
+     * This bean sets up CORS to allow requests from specific origins, methods, and headers.
+     * It allows credentials to be included in the requests, which is necessary for cookies and HTTP
+     * authentication.
+     * </p>
+     * * @return a {@link CorsConfigurationSource} that provides the CORS configuration
+     * <p>
+     * This configuration allows requests from "http://localhost:3000" (the React frontend),
+     * allows all HTTP methods, and allows all headers.
+     * * Note: Adjust the allowed origin as necessary for your frontend application.
+     * </p>
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedOrigin("http://localhost:3000");
+        configuration.addAllowedMethod("*");
+        configuration.addAllowedHeader("*");
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
 
