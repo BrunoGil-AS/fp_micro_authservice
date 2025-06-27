@@ -5,7 +5,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.server.authorization.client.*;
+import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 
+import java.time.Duration;
 import java.util.UUID;
 
 @Configuration
@@ -40,15 +42,24 @@ public class ClientConfig {
             .scope("gateway.write")
             .build();
 
-        // Cliente público para el frontend (React) con password grant habilitado
+        // Cliente público para el frontend (React) con refresh token habilitado
         RegisteredClient reactClient = RegisteredClient.withId(UUID.randomUUID().toString())
             .clientId("fp_frontend")
             .clientAuthenticationMethod(ClientAuthenticationMethod.NONE) // Público, sin secreto
             .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+            .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN) // Habilitar refresh tokens
             .redirectUri("http://localhost:3000/callback") // Cambia esto según la URL de tu front
+            .postLogoutRedirectUri("http://localhost:3000/") // URL después del logout
             .scope("openid")
             .scope("profile")
             .scope("api.read")
+            .scope("api.write")
+            // Configuración de tokens
+            .tokenSettings(TokenSettings.builder()
+                .accessTokenTimeToLive(Duration.ofMinutes(15)) // Access token válido por 15 minutos
+                .refreshTokenTimeToLive(Duration.ofDays(30))   // Refresh token válido por 30 días
+                .reuseRefreshTokens(false) // Generar nuevo refresh token en cada renovación
+                .build())
             .build();
 
         return new InMemoryRegisteredClientRepository(gatewayClient, reactClient);
