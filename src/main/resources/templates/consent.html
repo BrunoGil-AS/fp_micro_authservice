@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Autorización de Aplicación</title>
+    <title>Application Authorization</title>
     <style>
       body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
@@ -119,16 +119,16 @@
   <body>
     <div class="consent-container">
       <div class="user-info">
-        Conectado como: <strong th:text="${principalName}">Usuario</strong>
+        Connected as: <strong th:text="${principalName}">User</strong>
       </div>
 
       <div class="app-info">
-        <div class="app-name" th:text="${clientName}">Aplicación Cliente</div>
-        <div class="permission-request">quiere acceder a tu cuenta</div>
+        <div class="app-name" th:text="${clientName}">Client Application</div>
+        <div class="permission-request">wants to access your account</div>
       </div>
 
       <div class="scopes-section" th:if="${not #sets.isEmpty(scopes)}">
-        <div class="scopes-title">Permisos solicitados:</div>
+        <div class="scopes-title">Requested permissions:</div>
         <div th:each="scope : ${scopes}" class="scope-item">
           <div class="scope-icon"></div>
           <div class="scope-description" th:text="${scope.description}">
@@ -141,7 +141,7 @@
         class="scopes-section"
         th:if="${not #sets.isEmpty(previouslyApprovedScopes)}"
       >
-        <div class="scopes-title">Permisos previamente autorizados:</div>
+        <div class="scopes-title">Previously authorized permissions:</div>
         <div
           th:each="scope : ${previouslyApprovedScopes}"
           class="scope-item previously-approved"

@@ -29,7 +29,7 @@ public class AuthErrorController implements ErrorController {
         model.addAttribute("errorPath", errorPath);
         model.addAttribute("requestParams", allParams);
         
-        // Log para debugging
+        // Log for debugging
         System.out.println("=== AUTH ERROR DEBUG ===");
         System.out.println("Status Code: " + statusCode);
         System.out.println("Error Message: " + errorMessage);
@@ -37,14 +37,14 @@ public class AuthErrorController implements ErrorController {
         System.out.println("Request Parameters: " + allParams);
         System.out.println("========================");
         
-        // Si es un error relacionado con OAuth2, mostrar información específica
+        // If it's an OAuth2 related error, show specific information
         if (allParams.containsKey("response_type")) {
             model.addAttribute("oauthError", true);
             model.addAttribute("clientId", allParams.get("client_id"));
             model.addAttribute("redirectUri", allParams.get("redirect_uri"));
             model.addAttribute("scope", allParams.get("scope"));
             
-            // Si hay un code_challenge, es PKCE
+            // If there's a code_challenge, it's PKCE
             if (allParams.containsKey("code_challenge")) {
                 model.addAttribute("pkceFlow", true);
                 model.addAttribute("codeChallenge", allParams.get("code_challenge"));
@@ -52,6 +52,6 @@ public class AuthErrorController implements ErrorController {
             }
         }
         
-        return "error"; // Retorna la vista error.html
+        return "error"; // Returns the error.html view
     }
 }

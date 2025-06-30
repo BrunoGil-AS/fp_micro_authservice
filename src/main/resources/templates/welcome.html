@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html
-  lang="es"
+  lang="en"
   xmlns:th="http://www.thymeleaf.org"
   xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 >
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bienvenido - Auth Service</title>
+    <title>Welcome - Auth Service</title>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -19,11 +19,11 @@
         <span class="navbar-brand">Auth Service</span>
         <div class="navbar-nav ms-auto">
           <span class="navbar-text me-3">
-            Hola, <span sec:authentication="name">Usuario</span>
+            Hello, <span sec:authentication="name">User</span>
           </span>
           <form th:action="@{/logout}" method="post" class="d-inline">
             <button type="submit" class="btn btn-outline-light btn-sm">
-              Cerrar Sesión
+              Logout
             </button>
           </form>
         </div>
@@ -35,43 +35,42 @@
         <div class="col-md-8 mx-auto">
           <div class="card">
             <div class="card-header">
-              <h3 class="mb-0">¡Bienvenido al Servicio de Autenticación!</h3>
+              <h3 class="mb-0">Welcome to the Authentication Service!</h3>
             </div>
             <div class="card-body">
               <p class="lead">
-                Has iniciado sesión correctamente en el servicio de
-                autenticación.
+                You have successfully logged into the authentication service.
               </p>
 
-              <h5>Información de tu sesión:</h5>
+              <h5>Your session information:</h5>
               <ul class="list-group list-group-flush">
                 <li class="list-group-item">
-                  <strong>Usuario:</strong>
-                  <span sec:authentication="name">No disponible</span>
+                  <strong>User:</strong>
+                  <span sec:authentication="name">Not available</span>
                 </li>
                 <li class="list-group-item">
                   <strong>Roles:</strong>
                   <span sec:authentication="authorities">[ROLE_USER]</span>
                 </li>
                 <li class="list-group-item">
-                  <strong>Fecha de acceso:</strong>
+                  <strong>Access date:</strong>
                   <span
                     th:text="${#dates.format(#dates.createNow(), 'dd/MM/yyyy HH:mm:ss')}"
-                    >Ahora</span
+                    >Now</span
                   >
                 </li>
               </ul>
 
               <hr />
 
-              <h5>Enlaces útiles:</h5>
+              <h5>Useful links:</h5>
               <div class="row">
                 <div class="col-md-6">
                   <div class="card mb-3">
                     <div class="card-body">
                       <h6 class="card-title">OAuth2 Endpoints</h6>
                       <p class="card-text small">
-                        Endpoints del servidor de autorización
+                        Authorization server endpoints
                       </p>
                       <a
                         href="/oauth2/jwks"
@@ -86,11 +85,11 @@
                   <div class="card mb-3">
                     <div class="card-body">
                       <h6 class="card-title">API</h6>
-                      <p class="card-text small">Endpoints de la aplicación</p>
+                      <p class="card-text small">Application endpoints</p>
                       <a
-                        href="/auth/api/register"
+                        href="/user/register"
                         class="btn btn-sm btn-outline-secondary"
-                        >Registro</a
+                        >Register</a
                       >
                     </div>
                   </div>
@@ -104,7 +103,7 @@
 
     <footer class="mt-5 py-3 bg-light text-center">
       <div class="container">
-        <small class="text-muted">Auth Service - Puerto 8081</small>
+        <small class="text-muted">Auth Service - Port 8081</small>
       </div>
     </footer>
   </body>

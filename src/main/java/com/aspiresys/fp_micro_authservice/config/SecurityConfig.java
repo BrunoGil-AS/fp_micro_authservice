@@ -19,8 +19,6 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.InMemoryOAuth2AuthorizationConsentService;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.InMemoryOAuth2AuthorizationService;
-import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
-import org.springframework.security.oauth2.server.authorization.InMemoryOAuth2AuthorizationService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.core.GrantedAuthority;
@@ -39,8 +37,8 @@ import java.util.stream.Collectors;
 public class SecurityConfig {
 
     /**
-     * Configuración específica para el Authorization Server de OAuth2.
-     * Este filtro debe tener el ORDER más alto para que sea procesado primero.
+     * Specific configuration for OAuth2 Authorization Server.
+     * This filter must have the highest ORDER to be processed first.
      */
     @Bean
     @Order(1)
@@ -94,12 +92,12 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/api/register").permitAll()
-                .requestMatchers("/user/register").permitAll() // Permitir acceso a registro web
-                .requestMatchers("/oauth2/jwks").permitAll() // Permitir acceso al endpoint JWKs
-                .requestMatchers("/oauth2/consent").permitAll() // Permitir acceso al endpoint de consentimiento
-                .requestMatchers("/oauth2/test-authorize").permitAll() // Endpoint de prueba OAuth2
-                .requestMatchers("/oauth2/info").permitAll() // Información de endpoints OAuth2
-                .requestMatchers("/debug/**").permitAll() // Endpoints de debug
+                .requestMatchers("/user/register").permitAll() // Allow access to web registration
+                .requestMatchers("/oauth2/jwks").permitAll() // Allow access to JWKs endpoint
+                .requestMatchers("/oauth2/consent").permitAll() // Allow access to consent endpoint
+                .requestMatchers("/oauth2/test-authorize").permitAll() // OAuth2 test endpoint
+                .requestMatchers("/oauth2/info").permitAll() // OAuth2 endpoints information
+                .requestMatchers("/debug/**").permitAll() // Debug endpoints
                 .requestMatchers("/error").permitAll() // Permitir acceso al endpoint de error
                 .requestMatchers("/login").permitAll() // Permitir acceso a la página de login
                 .requestMatchers("/login-simple").permitAll() // Permitir acceso a login simple
@@ -117,7 +115,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // Codificador de contraseñas (para guardar y verificar contraseñas hasheadas)
+    // Password encoder (to save and verify hashed passwords)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -158,7 +156,7 @@ public class SecurityConfig {
             keyPairGenerator.initialize(2048);
             return keyPairGenerator.generateKeyPair();
         } catch (Exception ex) {
-            throw new IllegalStateException("Error al generar claves RSA", ex);
+            throw new IllegalStateException("Error generating RSA keys", ex);
         }
     }
     /**

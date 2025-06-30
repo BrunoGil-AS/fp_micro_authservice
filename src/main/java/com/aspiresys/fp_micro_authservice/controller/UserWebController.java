@@ -38,29 +38,29 @@ public class UserWebController {
     @PostMapping("/register")
     public String registerUser(@ModelAttribute AppUser user, Model model) {
         try {
-            // Verificar si el usuario ya existe
+            // Check if user already exists
             if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-                model.addAttribute("error", "El usuario ya existe");
+                model.addAttribute("error", "User already exists");
                 return "register";
             }
 
-            // Encriptar la contraseña
+            // Encrypt password
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             
-            // Asignar rol por defecto
+            // Assign default role
             Role defaultRole = roleRepository.findByName("ROLE_USER")
-                    .orElseThrow(() -> new RuntimeException("Rol por defecto no encontrado"));
+                    .orElseThrow(() -> new RuntimeException("Default role not found"));
             user.setRoles(Set.of(defaultRole));
             
-            // Guardar usuario
+            // Save user
             userRepository.save(user);
             
-            model.addAttribute("success", "Usuario registrado exitosamente. Puedes iniciar sesión ahora.");
+            model.addAttribute("success", "User registered successfully. You can now login.");
             
             return "login";
             
         } catch (Exception e) {
-            model.addAttribute("error", "Error al registrar usuario: " + e.getMessage());
+            model.addAttribute("error", "Error registering user: " + e.getMessage());
             return "register";
         }
     }

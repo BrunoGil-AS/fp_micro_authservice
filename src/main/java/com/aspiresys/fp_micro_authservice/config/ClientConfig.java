@@ -43,28 +43,28 @@ public class ClientConfig {
             .scope("gateway.write")
             .build();
 
-        // Cliente público para el frontend (React) con refresh token y PKCE habilitado
+        // Public client for frontend (React) with refresh token and PKCE enabled
         RegisteredClient reactClient = RegisteredClient.withId(UUID.randomUUID().toString())
             .clientId("fp_frontend")
-            .clientAuthenticationMethod(ClientAuthenticationMethod.NONE) // Público, sin secreto
+            .clientAuthenticationMethod(ClientAuthenticationMethod.NONE) // Public, no secret
             .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-            .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN) // Habilitar refresh tokens
-            .redirectUri("http://localhost:3000/callback") // Cambia esto según la URL de tu front
-            .postLogoutRedirectUri("http://localhost:3000/") // URL después del logout
+            .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN) // Enable refresh tokens
+            .redirectUri("http://localhost:3000/callback") // Change this according to your frontend URL
+            .postLogoutRedirectUri("http://localhost:3000/") // URL after logout
             .scope("openid")
             .scope("profile")
             .scope("api.read")
             .scope("api.write")
-            // Configuración de cliente para PKCE
+            // Client configuration for PKCE
             .clientSettings(ClientSettings.builder()
-                .requireAuthorizationConsent(false) // No requerir pantalla de consentimiento para app propia
-                .requireProofKey(true) // Requerir PKCE para seguridad
+                .requireAuthorizationConsent(false) // Don't require consent screen for own app
+                .requireProofKey(true) // Require PKCE for security
                 .build())
-            // Configuración de tokens
+            // Token configuration
             .tokenSettings(TokenSettings.builder()
-                .accessTokenTimeToLive(Duration.ofMinutes(15)) // Access token válido por 15 minutos
-                .refreshTokenTimeToLive(Duration.ofDays(30))   // Refresh token válido por 30 días
-                .reuseRefreshTokens(false) // Generar nuevo refresh token en cada renovación
+                .accessTokenTimeToLive(Duration.ofMinutes(15)) // Access token valid for 15 minutes
+                .refreshTokenTimeToLive(Duration.ofDays(30))   // Refresh token valid for 30 days
+                .reuseRefreshTokens(false) // Generate new refresh token on each renewal
                 .build())
             .build();
 
