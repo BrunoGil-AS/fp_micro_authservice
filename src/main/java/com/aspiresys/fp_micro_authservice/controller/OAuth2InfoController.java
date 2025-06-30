@@ -1,0 +1,76 @@
+package com.aspiresys.fp_micro_authservice.controller;
+
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Map;
+
+@RestController
+@RequestMapping("/oauth2")
+public class OAuth2InfoController {
+
+    @Autowired
+    private RegisteredClientRepository registeredClientRepository;
+
+    /**
+     * Endpoint para verificar la configuración del Authorization Server
+     */
+    @GetMapping("/server-info")
+    public ResponseEntity<Map<String, Object>> serverInfo() {
+        
+        // Verificar que el cliente esté registrado
+        var frontendClient = registeredClientRepository.findByClientId("fp_frontend");
+        var gatewayClient = registeredClientRepository.findByClientId("fp_micro_gateway");
+        
+        Map<String, Object> info = Map.of(
+            "authorizationServer", "Spring Authorization Server",
+            "issuer", "http://localhost:8081",
+            "endpoints", Map.of(
+                "authorization", "/oauth2/authorize",
+                "token", "/oauth2/token",
+                "jwks", "/oauth2/jwks",
+                "userinfo", "/userinfo",
+                "consent", "/oauth2/consent",
+                "device_authorization", "/oauth2/device_authorization",
+                "device_verification", "/oauth2/device_verification"
+            ),
+            "registeredClients", Map.of(
+                "fp_frontend", frontendClient != null ? Map.of(
+                    "clientId", frontendClient.getClientId(),
+                    "scopes", frontendClient.getScopes(),
+                    "redirectUris", frontendClient.getRedirectUris(),
+                    "grantTypes", frontendClient.getAuthorizationGrantTypes().stream()
+                        .map(grantType -> grantType.getValue()).toList()
+                ) : "NOT FOUND",
+                "fp_micro_gateway", gatewayClient != null ? Map.of(
+                    "clientId", gatewayClient.getClientId(),
+                    "scopes", gatewayClient.getScopes(),
+                    "grantTypes", gatewayClient.getAuthorizationGrantTypes().stream()
+                        .map(grantType -> grantType.getValue()).toList()
+                ) : "NOT FOUND"
+            ),
+            "status", "Authorization Server is configured and running"
+        );
+        
+        return ResponseEntity.ok(info);
+    }
+
+    /**
+     * Endpoint para probar manualmente el authorization endpoint
+     */
+    @GetMapping("/test-direct")
+    public ResponseEntity<Map<String, Object>> testDirect() {
+        Map<String, Object> response = Map.of(
+            "message", "This endpoint is reachable",
+            "note", "If /oauth2/authorize returns 404, there's a routing issue",
+            "suggestion", "Try accessing /oauth2/authorize with proper parameters",
+            "example", "/oauth2/authorize?response_type=code&client_id=fp_frontend&redirect_uri=http://localhost:3000/callback&scope=openid&code_challenge=test&code_challenge_method=S256"
+        );
+        
+        return ResponseEntity.ok(response);
+    }
+}

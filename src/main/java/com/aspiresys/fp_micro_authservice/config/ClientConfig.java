@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.server.authorization.client.*;
+import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 
 import java.time.Duration;
@@ -42,7 +43,7 @@ public class ClientConfig {
             .scope("gateway.write")
             .build();
 
-        // Cliente público para el frontend (React) con refresh token habilitado
+        // Cliente público para el frontend (React) con refresh token y PKCE habilitado
         RegisteredClient reactClient = RegisteredClient.withId(UUID.randomUUID().toString())
             .clientId("fp_frontend")
             .clientAuthenticationMethod(ClientAuthenticationMethod.NONE) // Público, sin secreto
@@ -54,6 +55,11 @@ public class ClientConfig {
             .scope("profile")
             .scope("api.read")
             .scope("api.write")
+            // Configuración de cliente para PKCE
+            .clientSettings(ClientSettings.builder()
+                .requireAuthorizationConsent(false) // No requerir pantalla de consentimiento para app propia
+                .requireProofKey(true) // Requerir PKCE para seguridad
+                .build())
             // Configuración de tokens
             .tokenSettings(TokenSettings.builder()
                 .accessTokenTimeToLive(Duration.ofMinutes(15)) // Access token válido por 15 minutos

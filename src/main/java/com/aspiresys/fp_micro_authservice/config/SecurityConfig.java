@@ -15,6 +15,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
+import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
+import org.springframework.security.oauth2.server.authorization.InMemoryOAuth2AuthorizationConsentService;
+import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.InMemoryOAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.InMemoryOAuth2AuthorizationService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.core.GrantedAuthority;
@@ -30,54 +36,41 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Configuration
-
 public class SecurityConfig {
 
-    
     /**
-     * Configures the security filter chain for the OAuth2 Authorization Server endpoints.
-     * <p>
-     * This bean sets up security specifically for the endpoints exposed by the OAuth2 Authorization Server,
-     * using the {@link OAuth2AuthorizationServerConfigurer}. It applies security rules only to the endpoints
-     * matched by the authorization server such as:
-     * <ul>
-     *     <li>/oauth2/authorize: Authorization endpoint for user login and consent</li>
-     *     <li>/oauth2/token: Token endpoint for exchanging authorization codes or credentials for access tokens</li>
-     *     <li>/oauth2/token/introspect: Endpoint for introspecting access tokens</li>
-     *     <li>/oauth2/token/revoke: Endpoint for revoking access tokens</li>
-     *     <li>/oauth2/device_authorization: Endpoint for device authorization flow</li>
-     *     <li>/oauth2/device_code: Endpoint for device code verification</li>
-     *     <li>/oauth2/jwks: Endpoint for serving JSON Web Key Set (JWK) for public key retrieval</li>
-     *     <li>/oauth2/oidc: OpenID Connect endpoints for user info and discovery</li>
-     * </ul>
-     * <p>
-     * The configuration also enables OpenID Connect (OIDC) support by default, allowing the server to handle
-     * OIDC requests if needed. If OIDC is not required, the related line can be removed.
-     *
-     * @param http the {@link HttpSecurity} to modify
-     * @return the configured {@link SecurityFilterChain} for the authorization server endpoints
-     * @throws Exception if an error occurs during configuration
+     * Configuración específica para el Authorization Server de OAuth2.
+     * Este filtro debe tener el ORDER más alto para que sea procesado primero.
      */
     @Bean
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-        OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer.authorizationServer();
-
+        
+        OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = new OAuth2AuthorizationServerConfigurer();
+        
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+            .securityMatcher("/oauth2/**", "/.well-known/**")
             .with(authorizationServerConfigurer, authorizationServer -> {
-            authorizationServer.oidc(Customizer.withDefaults());
+                authorizationServer
+                    .oidc(Customizer.withDefaults())
+                    .authorizationEndpoint(authorizationEndpoint -> 
+                        authorizationEndpoint.consentPage("/oauth2/consent"));
             })
-            .exceptionHandling(exceptions -> exceptions
-            .authenticationEntryPoint(
-                (request, response, authException) -> {
-                // Redirige al frontend con el error si ocurre un fallo de autenticación
-                response.sendRedirect("http://localhost:3000/callback?error=unauthorized");
-                }
+            .authorizeHttpRequests(authorize -> authorize
+                .anyRequest().authenticated()
             )
+            .exceptionHandling(exceptions -> exceptions
+                .authenticationEntryPoint(
+                    (request, response, authException) -> {
+                        System.out.println("Auth Server - Authentication error at: " + request.getRequestURI());
+                        System.out.println("Auth Server - Exception: " + authException.getMessage());
+                        response.sendRedirect("/login?error=unauthorized");
+                    }
+                )
             );
 
+        System.out.println("=== AUTHORIZATION SERVER FILTER CHAIN CONFIGURED ===");
         return http.build();
     }
 
@@ -97,14 +90,29 @@ public class SecurityConfig {
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf
-            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/api/register").permitAll()
+                .requestMatchers("/user/register").permitAll() // Permitir acceso a registro web
                 .requestMatchers("/oauth2/jwks").permitAll() // Permitir acceso al endpoint JWKs
+                .requestMatchers("/oauth2/consent").permitAll() // Permitir acceso al endpoint de consentimiento
+                .requestMatchers("/oauth2/test-authorize").permitAll() // Endpoint de prueba OAuth2
+                .requestMatchers("/oauth2/info").permitAll() // Información de endpoints OAuth2
+                .requestMatchers("/debug/**").permitAll() // Endpoints de debug
+                .requestMatchers("/error").permitAll() // Permitir acceso al endpoint de error
+                .requestMatchers("/login").permitAll() // Permitir acceso a la página de login
+                .requestMatchers("/login-simple").permitAll() // Permitir acceso a login simple
+                .requestMatchers("/test").permitAll() // Permitir acceso a la página de prueba
+                .requestMatchers("/css/**", "/js/**", "/images/**").permitAll() // Recursos estáticos
                 .anyRequest().authenticated())
-            .httpBasic(Customizer.withDefaults())
-            .formLogin(Customizer.withDefaults());
+            .formLogin(form -> form
+                .loginPage("/login")
+                .defaultSuccessUrl("/")
+                .permitAll())
+            .logout(logout -> logout
+                .logoutSuccessUrl("/login?logout")
+                .permitAll());
 
         return http.build();
     }
@@ -199,6 +207,34 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    /**
+     * Provides an OAuth2 Authorization Consent Service for storing user consent decisions.
+     * <p>
+     * This bean creates an in-memory service to store and retrieve user consent decisions
+     * for OAuth2 authorization requests. In production, consider using a persistent storage.
+     * </p>
+     * 
+     * @return an {@link OAuth2AuthorizationConsentService} for managing consent decisions
+     */
+    @Bean
+    public OAuth2AuthorizationConsentService authorizationConsentService() {
+        return new InMemoryOAuth2AuthorizationConsentService();
+    }
+
+    /**
+     * Provides an OAuth2 Authorization Service for storing authorization codes and access tokens.
+     * <p>
+     * This bean creates an in-memory service to store and retrieve OAuth2 authorizations.
+     * In production, consider using a persistent storage like database or Redis.
+     * </p>
+     * 
+     * @return an {@link OAuth2AuthorizationService} for managing authorizations
+     */
+    @Bean
+    public OAuth2AuthorizationService authorizationService() {
+        return new InMemoryOAuth2AuthorizationService();
     }
 }
 
