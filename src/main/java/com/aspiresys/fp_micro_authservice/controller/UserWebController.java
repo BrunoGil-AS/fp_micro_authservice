@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.aspiresys.fp_micro_authservice.user.AppUser;
 import com.aspiresys.fp_micro_authservice.user.AppUserRepository;
@@ -31,6 +33,12 @@ public class UserWebController {
 
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
+        // Check if user is already authenticated
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) {
+            return "redirect:/"; // Redirect to welcome page if already logged in
+        }
+        
         model.addAttribute("user", new AppUser());
         return "register";
     }

@@ -5,6 +5,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
@@ -18,12 +20,32 @@ public class AuthErrorController implements ErrorController {
             Model model,
             @RequestParam Map<String, String> allParams) {
         
-        // Obtener información del error
+        // Get error information
         Integer statusCode = (Integer) request.getAttribute("javax.servlet.error.status_code");
         String errorMessage = (String) request.getAttribute("javax.servlet.error.message");
         String errorPath = (String) request.getAttribute("javax.servlet.error.request_uri");
         
-        // Agregar información al modelo para la vista
+        // Check if user is authenticated
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAuthenticated = auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser");
+        
+        // Handle 404 errors differently
+        if (statusCode != null && statusCode == 404) {
+            model.addAttribute("is404", true);
+            model.addAttribute("requestedPath", errorPath);
+            model.addAttribute("isAuthenticated", isAuthenticated);
+            
+            // For 404 errors, provide helpful navigation
+            if (isAuthenticated) {
+                model.addAttribute("redirectSuggestion", "Go to Dashboard");
+                model.addAttribute("redirectUrl", "/");
+            } else {
+                model.addAttribute("redirectSuggestion", "Go to Login");
+                model.addAttribute("redirectUrl", "/login");
+            }
+        }
+        
+        // Add information to model for the view
         model.addAttribute("statusCode", statusCode);
         model.addAttribute("errorMessage", errorMessage != null ? errorMessage : "No message available");
         model.addAttribute("errorPath", errorPath);
@@ -35,6 +57,7 @@ public class AuthErrorController implements ErrorController {
         System.out.println("Error Message: " + errorMessage);
         System.out.println("Error Path: " + errorPath);
         System.out.println("Request Parameters: " + allParams);
+        System.out.println("User Authenticated: " + isAuthenticated);
         System.out.println("========================");
         
         // If it's an OAuth2 related error, show specific information

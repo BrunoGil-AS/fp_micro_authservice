@@ -3,51 +3,149 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Authentication Error</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        max-width: 800px;
-        margin: 50px auto;
-        padding: 20px;
-        background-color: #f5f5f5;
-      }
-      .error-container {
-        background: white;
-        padding: 30px;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      }
-      .error-title {
-        color: #d32f2f;
-        font-size: 24px;
-        margin-bottom: 20px;
-      }
-      .error-details {
-        background: #f8f9fa;
-        padding: 15px;
-        border-radius: 5px;
-        margin: 15px 0;
-        border-left: 4px solid #007bff;
-      }
-      .oauth-info {
-        background: #fff3cd;
-        padding: 15px;
-        border-radius: 5px;
-        margin: 15px 0;
-        border-left: 4px solid #ffc107;
-      }
-      .debug-info {
-        background: #f8d7da;
-        padding: 15px;
-        border-radius: 5px;
-        margin: 15px 0;
-        border-left: 4px solid #dc3545;
-        font-family: monospace;
-        font-size: 12px;
-      }
-      .btn {
-        display: inline-block;
+    <title th:text="${is404} ? 'Page Not Found' : 'Authentication Error'">Error</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    />
+  </head>
+  <body class="bg-light">
+    <div class="container mt-5">
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          
+          <!-- 404 Error Handling -->
+          <div th:if="${is404}" class="card">
+            <div class="card-body text-center">
+              <h1 class="display-1 text-muted">404</h1>
+              <h2 class="mb-3">Page Not Found</h2>
+              <p class="lead">
+                The page you requested 
+                <code th:text="${requestedPath}">unknown</code> 
+                could not be found.
+              </p>
+              <div class="mt-4">
+                <a 
+                  th:href="${redirectUrl}" 
+                  class="btn btn-primary btn-lg"
+                  th:text="${redirectSuggestion}">
+                  Go Home
+                </a>
+                <a href="javascript:history.back()" class="btn btn-outline-secondary btn-lg ms-2">
+                  Go Back
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- OAuth2/Authentication Error Handling -->
+          <div th:unless="${is404}" class="card">
+            <div class="card-header">
+              <h1 class="h3 mb-0 text-danger">OAuth2 Authentication Error</h1>
+            </div>
+            <div class="card-body">
+              
+              <div class="alert alert-danger">
+                <h5 class="alert-heading">Error Information</h5>
+                <p class="mb-1">
+                  <strong>Status Code:</strong>
+                  <span th:text="${statusCode}">Unknown</span>
+                </p>
+                <p class="mb-1">
+                  <strong>Message:</strong>
+                  <span th:text="${errorMessage}">No message</span>
+                </p>
+                <p class="mb-0">
+                  <strong>Path:</strong>
+                  <span th:text="${errorPath}">Unknown path</span>
+                </p>
+              </div>
+
+              <div th:if="${oauthError}" class="alert alert-warning">
+                <h5 class="alert-heading">OAuth2 Request Details</h5>
+                <p class="mb-1">
+                  <strong>Client ID:</strong>
+                  <span th:text="${clientId}">Unknown</span>
+                </p>
+                <p class="mb-1">
+                  <strong>Redirect URI:</strong>
+                  <span th:text="${redirectUri}">Unknown</span>
+                </p>
+                <p class="mb-1"><strong>Scopes:</strong> <span th:text="${scope}">Unknown</span></p>
+
+                <div th:if="${pkceFlow}" class="mt-3">
+                  <h6>PKCE Flow Detected</h6>
+                  <p class="mb-1">
+                    <strong>Code Challenge:</strong>
+                    <span th:text="${codeChallenge}">Unknown</span>
+                  </p>
+                  <p class="mb-0">
+                    <strong>Method:</strong>
+                    <span th:text="${codeChallengeMethod}">Unknown</span>
+                  </p>
+                </div>
+              </div>
+
+              <div class="alert alert-info">
+                <h6 class="alert-heading">Possible Causes</h6>
+                <ul class="mb-0">
+                  <li>The OAuth2 client is not properly registered</li>
+                  <li>The redirect URI does not match the configured one</li>
+                  <li>The requested scopes are not available</li>
+                  <li>Error in PKCE configuration</li>
+                  <li>Problem in authorization flow</li>
+                </ul>
+              </div>
+
+              <div class="mt-4">
+                <a href="/login" class="btn btn-primary">Try Login Again</a>
+                <a href="/" class="btn btn-outline-secondary ms-2">Go to Home</a>
+                <a href="http://localhost:3000" class="btn btn-outline-info ms-2">Back to Frontend</a>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
+      <!-- Developer Information (only show for non-404 errors) -->
+      <div th:unless="${is404}" class="row justify-content-center mt-4">
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-header">
+              <h6 class="mb-0">Debug Information (Development)</h6>
+            </div>
+            <div class="card-body">
+              <p class="mb-2"><strong>For Developers:</strong></p>
+              <p class="mb-2">Check OAuth2 client configuration in ClientConfig.java</p>
+              <p class="mb-2">Check server logs for more details</p>
+              
+              <details>
+                <summary>Request Parameters</summary>
+                <div class="mt-2">
+                  <div th:each="parameter : ${requestParams}" class="small">
+                    <code th:text="${parameter.key}">key</code>:
+                    <span th:text="${parameter.value}">value</span>
+                  </div>
+                </div>
+              </details>
+              
+              <p class="mt-3 mb-0 small text-muted">
+                Date:
+                <span
+                  th:text="${#dates.format(#dates.createNow(), 'yyyy-MM-dd HH:mm:ss')}"
+                  >now</span
+                >
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
         padding: 10px 20px;
         background: #007bff;
         color: white;
