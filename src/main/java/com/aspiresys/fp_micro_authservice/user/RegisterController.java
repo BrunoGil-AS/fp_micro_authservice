@@ -24,13 +24,13 @@ public class RegisterController {
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody AppUser user) {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Usuario ya existe");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("User already exists");
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         Role defaultRole = roleRepository.findByName("ROLE_USER")
-                .orElseThrow(() -> new RuntimeException("Rol por defecto no encontrado"));
-        user.setRoles(Set.of(defaultRole)); // Asignar rol por defecto
+                .orElseThrow(() -> new RuntimeException("Default role not found"));
+        user.setRoles(Set.of(defaultRole)); // Assign default role
         userRepository.save(user);
-        return ResponseEntity.ok("Usuario registrado exitosamente");
+        return ResponseEntity.ok("User registered successfully");
     }
 }

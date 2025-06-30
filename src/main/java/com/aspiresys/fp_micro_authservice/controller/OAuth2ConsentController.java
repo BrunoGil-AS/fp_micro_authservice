@@ -28,8 +28,8 @@ public class OAuth2ConsentController {
     }
 
     /**
-     * Muestra la página de consentimiento OAuth2
-     * Esta página permite al usuario autorizar el acceso de la aplicación cliente
+     * Shows the OAuth2 consent page
+     * This page allows the user to authorize client application access
      */
     @GetMapping("/oauth2/consent")
     public String consent(Principal principal, Model model,
@@ -38,13 +38,13 @@ public class OAuth2ConsentController {
                          @RequestParam(OAuth2ParameterNames.STATE) String state,
                          HttpServletRequest request) {
 
-        // Obtener información del cliente registrado
+        // Get registered client information
         RegisteredClient registeredClient = this.registeredClientRepository.findByClientId(clientId);
         if (registeredClient == null) {
-            throw new IllegalArgumentException("Cliente no encontrado: " + clientId);
+            throw new IllegalArgumentException("Client not found: " + clientId);
         }
 
-        // Verificar el consentimiento previo
+        // Check previous consent
         OAuth2AuthorizationConsent currentAuthorizationConsent = 
             this.authorizationConsentService.findById(registeredClient.getId(), principal.getName());
 
@@ -75,7 +75,7 @@ public class OAuth2ConsentController {
     }
 
     /**
-     * Agrega descripciones amigables para los scopes
+     * Adds friendly descriptions for scopes
      */
     private static Set<ScopeWithDescription> withDescription(Set<String> scopes) {
         Set<ScopeWithDescription> scopeWithDescriptions = new HashSet<>();
@@ -86,7 +86,7 @@ public class OAuth2ConsentController {
     }
 
     /**
-     * Clase interna para representar un scope con descripción
+     * Inner class to represent a scope with description
      */
     public static class ScopeWithDescription {
         public final String scope;
@@ -98,12 +98,12 @@ public class OAuth2ConsentController {
         }
 
         private static final Map<String, String> scopeDescriptions = Map.of(
-            "openid", "Acceso a información de identidad",
-            "profile", "Acceso a información del perfil",
-            "api.read", "Acceso de lectura a la API",
-            "api.write", "Acceso de escritura a la API",
-            "gateway.read", "Acceso de lectura al gateway",
-            "gateway.write", "Acceso de escritura al gateway"
+            "openid", "Access to identity information",
+            "profile", "Access to profile information", 
+            "api.read", "Read access to API",
+            "api.write", "Write access to API",
+            "gateway.read", "Read access to gateway",
+            "gateway.write", "Write access to gateway"
         );
     }
 }

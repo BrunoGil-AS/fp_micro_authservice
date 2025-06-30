@@ -91,18 +91,13 @@ public class SecurityConfig {
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/api/register").permitAll()
-                .requestMatchers("/user/register").permitAll() // Allow access to web registration
-                .requestMatchers("/oauth2/jwks").permitAll() // Allow access to JWKs endpoint
-                .requestMatchers("/oauth2/consent").permitAll() // Allow access to consent endpoint
-                .requestMatchers("/oauth2/test-authorize").permitAll() // OAuth2 test endpoint
-                .requestMatchers("/oauth2/info").permitAll() // OAuth2 endpoints information
-                .requestMatchers("/debug/**").permitAll() // Debug endpoints
-                .requestMatchers("/error").permitAll() // Permitir acceso al endpoint de error
-                .requestMatchers("/login").permitAll() // Permitir acceso a la página de login
-                .requestMatchers("/login-simple").permitAll() // Permitir acceso a login simple
-                .requestMatchers("/test").permitAll() // Permitir acceso a la página de prueba
-                .requestMatchers("/css/**", "/js/**", "/images/**").permitAll() // Recursos estáticos
+                .requestMatchers("/auth/api/register").permitAll() // API registration endpoint
+                .requestMatchers("/user/register").permitAll() // Web registration page
+                .requestMatchers("/oauth2/consent").permitAll() // OAuth2 consent page
+                .requestMatchers("/oauth2/server-info", "/oauth2/test-direct").permitAll() // OAuth2 info endpoints
+                .requestMatchers("/error").permitAll() // Error handling page
+                .requestMatchers("/login").permitAll() // Login page
+                .requestMatchers("/css/**", "/js/**", "/images/**").permitAll() // Static resources
                 .anyRequest().authenticated())
             .formLogin(form -> form
                 .loginPage("/login")

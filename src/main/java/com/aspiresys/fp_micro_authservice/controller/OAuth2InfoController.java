@@ -17,12 +17,12 @@ public class OAuth2InfoController {
     private RegisteredClientRepository registeredClientRepository;
 
     /**
-     * Endpoint para verificar la configuración del Authorization Server
+     * Endpoint to verify Authorization Server configuration
      */
     @GetMapping("/server-info")
     public ResponseEntity<Map<String, Object>> serverInfo() {
         
-        // Verificar que el cliente esté registrado
+        // Verify that clients are registered
         var frontendClient = registeredClientRepository.findByClientId("fp_frontend");
         var gatewayClient = registeredClientRepository.findByClientId("fp_micro_gateway");
         
@@ -60,7 +60,7 @@ public class OAuth2InfoController {
     }
 
     /**
-     * Endpoint para probar manualmente el authorization endpoint
+     * Endpoint to manually test the authorization endpoint
      */
     @GetMapping("/test-direct")
     public ResponseEntity<Map<String, Object>> testDirect() {
