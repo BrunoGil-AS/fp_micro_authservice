@@ -22,7 +22,8 @@ public class LoginController {
             return "redirect:/"; // Redirect to welcome page if already logged in
         }
         
-        if (error != null) {
+        // Only show error message for actual authentication failures
+        if ("true".equals(error)) {
             model.addAttribute("error", "Incorrect username or password");
         }
         

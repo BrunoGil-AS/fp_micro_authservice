@@ -61,9 +61,9 @@ public class SecurityConfig {
             .exceptionHandling(exceptions -> exceptions
                 .authenticationEntryPoint(
                     (request, response, authException) -> {
-                        System.out.println("Auth Server - Authentication error at: " + request.getRequestURI());
-                        System.out.println("Auth Server - Exception: " + authException.getMessage());
-                        response.sendRedirect("/login?error=unauthorized");
+                        System.out.println("Auth Server - Authentication required for: " + request.getRequestURI());
+                        System.out.println("Auth Server - Redirecting to login page");
+                        response.sendRedirect("/login");
                     }
                 )
             );
@@ -101,8 +101,8 @@ public class SecurityConfig {
                 .anyRequest().authenticated())
             .formLogin(form -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/", true) // Always redirect to home after successful login
-                .failureUrl("/login?error=true")
+                .defaultSuccessUrl("/", false) // Don't always redirect - allow SavedRequest to work
+                .failureUrl("/login?error=true") // Use 'true' for actual login failures
                 .permitAll())
             .logout(logout -> logout
                 .logoutSuccessUrl("/login?logout=true")
