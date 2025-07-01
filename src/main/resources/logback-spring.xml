@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <!-- Propiedades globales -->
-    <property name="LOG_PATH" value="./logs"/>
+    <!-- Propiedades específicas del Auth Service -->
+    <property name="LOG_PATH" value="./logs/auth-service"/>
     <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%logger{36}] - %msg%n"/>
-    <!-- Patrón simplificado para consola (sin %clr que requiere Spring Boot completo) -->
     <property name="LOG_PATTERN_CONSOLE" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [AUTH-SERVICE] [%logger{36}] - %msg%n"/>
     
-    <!-- Configuración para diferentes profiles -->
+    <!-- Console Appender para desarrollo -->
     <springProfile name="!prod">
-        <!-- Console Appender para desarrollo -->
         <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
             <encoder>
                 <pattern>${LOG_PATTERN_CONSOLE}</pattern>
@@ -16,38 +14,63 @@
         </appender>
     </springProfile>
 
-    <!-- File Appender para logs generales -->
-    <appender name="FILE_ALL" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!-- File Appender para logs del Auth Service -->
+    <appender name="FILE_AUTH" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/auth-service.log</file>
         <encoder>
             <pattern>${LOG_PATTERN}</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${LOG_PATH}/archived/auth-service.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
-            <maxFileSize>50MB</maxFileSize>
+            <maxFileSize>40MB</maxFileSize>
             <maxHistory>30</maxHistory>
-            <totalSizeCap>1GB</totalSizeCap>
+            <totalSizeCap>600MB</totalSizeCap>
         </rollingPolicy>
     </appender>
 
-    <!-- File Appender para logs de aplicación (solo nuestros packages) -->
-    <appender name="FILE_APP" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_PATH}/auth-service-app.log</file>
+    <!-- File Appender para logs de autenticación -->
+    <appender name="FILE_AUTHENTICATION" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/auth-authentication.log</file>
         <encoder>
             <pattern>${LOG_PATTERN}</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH}/archived/auth-service-app.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
-            <maxFileSize>50MB</maxFileSize>
-            <maxHistory>30</maxHistory>
+            <fileNamePattern>${LOG_PATH}/archived/auth-authentication.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>30MB</maxFileSize>
+            <maxHistory>45</maxHistory>
             <totalSizeCap>500MB</totalSizeCap>
         </rollingPolicy>
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>DEBUG</level>
-        </filter>
     </appender>
 
-    <!-- File Appender para logs de errores -->
+    <!-- File Appender para logs de OAuth2 -->
+    <appender name="FILE_OAUTH2" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/auth-oauth2.log</file>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/archived/auth-oauth2.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>25MB</maxFileSize>
+            <maxHistory>45</maxHistory>
+            <totalSizeCap>400MB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- File Appender para logs de base de datos -->
+    <appender name="FILE_DATABASE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/auth-database.log</file>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/archived/auth-database.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>20MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>300MB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- File Appender para errores -->
     <appender name="FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/auth-service-error.log</file>
         <encoder>
@@ -55,7 +78,7 @@
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${LOG_PATH}/archived/auth-service-error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
-            <maxFileSize>20MB</maxFileSize>
+            <maxFileSize>25MB</maxFileSize>
             <maxHistory>60</maxHistory>
             <totalSizeCap>500MB</totalSizeCap>
         </rollingPolicy>
@@ -64,79 +87,122 @@
         </filter>
     </appender>
 
-    <!-- Appender para logs de Spring Framework -->
-    <appender name="FILE_SPRING" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_PATH}/spring-framework.log</file>
-        <encoder>
-            <pattern>${LOG_PATTERN}</pattern>
-        </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH}/archived/spring-framework.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
-            <maxFileSize>30MB</maxFileSize>
-            <maxHistory>15</maxHistory>
-            <totalSizeCap>300MB</totalSizeCap>
-        </rollingPolicy>
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
-        </filter>
-    </appender>
+    <!-- Logger específico para Auth Service -->
+        <!-- Configuración para desarrollo (!prod) -->
+    <springProfile name="!prod">
+        <logger name="com.aspiresys.fp_micro_authservice" level="DEBUG" additivity="false">
+<appender-ref ref="FILE_AUTH"/>
+        <appender-ref ref="FILE_ERROR"/>
+<appender-ref ref="CONSOLE"/>
 
-    <!-- Configuración de loggers por package -->
+        </logger>
+    </springProfile>
     
-    <!-- Logger para nuestros packages de aplicación -->
-    <logger name="com.aspiresys" level="DEBUG" additivity="false">
-        <appender-ref ref="FILE_APP"/>
+    <!-- Configuración para producción (prod) -->
+    <springProfile name="prod">
+        <logger name="com.aspiresys.fp_micro_authservice" level="DEBUG" additivity="false">
+<appender-ref ref="FILE_AUTH"/>
         <appender-ref ref="FILE_ERROR"/>
-        <springProfile name="!prod">
-            <appender-ref ref="CONSOLE"/>
-        </springProfile>
+
+        </logger>
+    </springProfile>
+
+    <!-- Logger para Spring Security -->
+        <!-- Configuración para desarrollo (!prod) -->
+    <springProfile name="!prod">
+        <logger name="org.springframework.security" level="INFO" additivity="false">
+<appender-ref ref="FILE_AUTHENTICATION"/>
+        <appender-ref ref="FILE_ERROR"/>
+<appender-ref ref="CONSOLE"/>
+
+        </logger>
+    </springProfile>
+    
+    <!-- Configuración para producción (prod) -->
+    <springProfile name="prod">
+        <logger name="org.springframework.security" level="INFO" additivity="false">
+<appender-ref ref="FILE_AUTHENTICATION"/>
+        <appender-ref ref="FILE_ERROR"/>
+
+        </logger>
+    </springProfile>
+
+    <!-- Logger para OAuth2 Authorization Server -->
+        <!-- Configuración para desarrollo (!prod) -->
+    <springProfile name="!prod">
+        <logger name="org.springframework.security.oauth2.server.authorization" level="DEBUG" additivity="false">
+<appender-ref ref="FILE_OAUTH2"/>
+        <appender-ref ref="FILE_ERROR"/>
+<appender-ref ref="CONSOLE"/>
+
+        </logger>
+    </springProfile>
+    
+    <!-- Configuración para producción (prod) -->
+    <springProfile name="prod">
+        <logger name="org.springframework.security.oauth2.server.authorization" level="DEBUG" additivity="false">
+<appender-ref ref="FILE_OAUTH2"/>
+        <appender-ref ref="FILE_ERROR"/>
+
+        </logger>
+    </springProfile>
+
+    <!-- Logger para JWT -->
+    <logger name="org.springframework.security.oauth2.jwt" level="DEBUG" additivity="false">
+        <appender-ref ref="FILE_OAUTH2"/>
+        <appender-ref ref="FILE_ERROR"/>
     </logger>
 
-    <!-- Loggers para Spring Security y OAuth2 -->
-    <logger name="org.springframework.security" level="DEBUG" additivity="false">
-        <appender-ref ref="FILE_APP"/>
-        <appender-ref ref="FILE_ERROR"/>
-        <springProfile name="!prod">
-            <appender-ref ref="CONSOLE"/>
-        </springProfile>
-    </logger>
-    
-    <logger name="org.springframework.security.oauth2" level="DEBUG" additivity="false">
-        <appender-ref ref="FILE_APP"/>
-        <appender-ref ref="FILE_ERROR"/>
-        <springProfile name="!prod">
-            <appender-ref ref="CONSOLE"/>
-        </springProfile>
-    </logger>
-
-    <!-- Loggers para Spring Framework -->
-    <logger name="org.springframework" level="INFO" additivity="false">
-        <appender-ref ref="FILE_SPRING"/>
-        <appender-ref ref="FILE_ERROR"/>
-    </logger>
-    
-    <logger name="org.springframework.cloud" level="INFO" additivity="false">
-        <appender-ref ref="FILE_SPRING"/>
+    <!-- Logger para autenticación específica -->
+    <logger name="org.springframework.security.authentication" level="INFO" additivity="false">
+        <appender-ref ref="FILE_AUTHENTICATION"/>
         <appender-ref ref="FILE_ERROR"/>
     </logger>
 
-    <!-- Loggers para Hibernate/JPA -->
-    <logger name="org.hibernate" level="WARN" additivity="false">
-        <appender-ref ref="FILE_SPRING"/>
+    <!-- Loggers para base de datos -->
+    <logger name="org.hibernate" level="INFO" additivity="false">
+        <appender-ref ref="FILE_DATABASE"/>
         <appender-ref ref="FILE_ERROR"/>
     </logger>
-    
+
     <logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
-        <appender-ref ref="FILE_APP"/>
+        <appender-ref ref="FILE_DATABASE"/>
+    </logger>
+
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" additivity="false">
+        <appender-ref ref="FILE_DATABASE"/>
+    </logger>
+
+    <!-- Logger para HikariCP -->
+    <logger name="com.zaxxer.hikari" level="INFO" additivity="false">
+        <appender-ref ref="FILE_DATABASE"/>
         <appender-ref ref="FILE_ERROR"/>
     </logger>
+
+    <!-- Loggers para dependencias externas -->
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.springframework.web" level="INFO"/>
+    <logger name="com.mysql" level="WARN"/>
+    <logger name="org.apache" level="WARN"/>
+    <logger name="com.netflix.eureka" level="WARN"/>
 
     <!-- Root logger -->
-    <root level="INFO">
-        <appender-ref ref="FILE_ALL"/>
+        <!-- Root logger para desarrollo (!prod) -->
+    <springProfile name="!prod">
+        <root level="INFO">
+<appender-ref ref="FILE_AUTH"/>
         <appender-ref ref="FILE_ERROR"/>
-        <springProfile name="!prod">
-            <appender-ref ref="CONSOLE"/>
-        </springProfile>
-    </root>
+<appender-ref ref="CONSOLE"/>
+
+        </root>
+    </springProfile>
+    
+    <!-- Root logger para producción (prod) -->
+    <springProfile name="prod">
+        <root level="INFO">
+<appender-ref ref="FILE_AUTH"/>
+        <appender-ref ref="FILE_ERROR"/>
+
+        </root>
+    </springProfile>
 </configuration>
