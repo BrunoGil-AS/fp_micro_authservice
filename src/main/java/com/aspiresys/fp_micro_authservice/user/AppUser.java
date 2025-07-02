@@ -5,12 +5,7 @@ import java.util.Set;
 
 import com.aspiresys.fp_micro_authservice.user.role.Role;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,7 +30,7 @@ import lombok.ToString;
  * @author YourName
  */
 @Entity
-@Table(name = "app_user")
+@Table(name = "app_user", uniqueConstraints = @jakarta.persistence.UniqueConstraint(columnNames = "username"))
 @Getter 
 @Setter
 @NoArgsConstructor

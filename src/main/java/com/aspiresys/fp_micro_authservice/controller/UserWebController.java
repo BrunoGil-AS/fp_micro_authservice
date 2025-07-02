@@ -18,8 +18,33 @@ import com.aspiresys.fp_micro_authservice.user.AppUserRepository;
 import com.aspiresys.fp_micro_authservice.user.role.Role;
 import com.aspiresys.fp_micro_authservice.user.role.RoleRepository;
 
+import lombok.extern.java.Log;
+
+/**
+ * Controller responsible for handling user registration web requests.
+ * <p>
+ * Provides endpoints for displaying the registration form and processing user registration.
+ * Handles validation, password encryption, role assignment, and error reporting.
+ * </p>
+ *
+ * <ul>
+ *   <li><b>GET /user/register</b>: Displays the user registration form. Redirects authenticated users to the home page.</li>
+ *   <li><b>POST /user/register</b>: Processes registration form submission, validates user existence, encrypts password,
+ *       assigns default role, saves the user, and handles errors.</li>
+ * </ul>
+ *
+ * Dependencies:
+ * <ul>
+ *   <li>{@link AppUserRepository} for user persistence and lookup.</li>
+ *   <li>{@link PasswordEncoder} for secure password storage.</li>
+ *   <li>{@link RoleRepository} for role assignment.</li>
+ * </ul>
+ *
+ * Logging is used to record registration failures.
+ */
 @Controller
 @RequestMapping("/user")
+@Log
 public class UserWebController {
 
     @Autowired
@@ -49,6 +74,10 @@ public class UserWebController {
             // Check if user already exists
             if (userRepository.findByUsername(user.getUsername()).isPresent()) {
                 model.addAttribute("error", "User already exists");
+                // Clear password for security and re-add user object to maintain form data
+                user.setPassword("");
+                model.addAttribute("user", user);
+                log.warning("User registration failed: User already exists with username " + user.getUsername());
                 return "register";
             }
 
@@ -69,6 +98,10 @@ public class UserWebController {
             
         } catch (Exception e) {
             model.addAttribute("error", "Error registering user: " + e.getMessage());
+            log.severe("User: " + user.getUsername() + " registration failed: " + e.getMessage());
+            // Clear password for security and re-add user object to maintain form data
+            user.setPassword("");
+            model.addAttribute("user", user);
             return "register";
         }
     }

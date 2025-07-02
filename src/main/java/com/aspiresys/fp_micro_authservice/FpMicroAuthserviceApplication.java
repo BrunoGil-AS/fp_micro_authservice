@@ -14,7 +14,10 @@ import com.aspiresys.fp_micro_authservice.user.AppUserRepository;
 import com.aspiresys.fp_micro_authservice.user.role.Role;
 import com.aspiresys.fp_micro_authservice.user.role.RoleRepository;
 
+import lombok.extern.java.Log;
+
 @SpringBootApplication
+@Log
 public class FpMicroAuthserviceApplication {
 
 	public static void main(String[] args) {
@@ -32,17 +35,18 @@ public class FpMicroAuthserviceApplication {
 			Role role = roleRepo.findByName("ROLE_USER").orElseGet(() -> {
 				Role newRole = new Role();
 				newRole.setName("ROLE_USER");
+				log.info("Creating default role: " + newRole.getName());
 				return roleRepo.save(newRole);
 			});
-			AppUser user = userRepo.findByUsernameWithRoles("bruno").orElse(null);
+			AppUser user = userRepo.findByUsernameWithRoles("testUser@example.com").orElse(null);
 			if (user == null) {
 				user = AppUser.builder()
-						.username("bruno")
+						.username("testUser@example.com")
 						.password(encoder.encode("1234"))
 						.roles(Set.of(role))
 						.build();
 				userRepo.save(user);
-				System.out.println("Default user created: " + user.getUsername());
+				log.info("Default user created: " + user.getUsername());
 			}
 			
 		}

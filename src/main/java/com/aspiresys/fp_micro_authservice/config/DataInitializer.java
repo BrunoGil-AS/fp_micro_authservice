@@ -59,19 +59,19 @@ public class DataInitializer implements CommandLineRunner {
      * Crea un usuario administrador por defecto si no existe.
      */
     private void initializeAdminUser() {
-        if (userRepository.findByUsername("admin").isEmpty()) {
+        if (userRepository.findByUsername("adminUser@adminProducts.com").isEmpty()) {
             Role adminRole = roleRepository.findByName("ROLE_ADMIN")
                     .orElseThrow(() -> new RuntimeException("ROLE_ADMIN no encontrado"));
             
             AppUser adminUser = AppUser.builder()
-                    .username("admin")
+                    .username("adminUser@adminProducts.com")
                     .password(passwordEncoder.encode("admin123"))
                     .roles(Set.of(adminRole))
                     .build();
             
             userRepository.save(adminUser);
             System.out.println("Usuario administrador creado exitosamente:");
-            System.out.println("  Username: admin");
+            System.out.println("  Username: adminUser@adminProducts.com");
             System.out.println("  Password: admin123");
             System.out.println("  Roles: ROLE_ADMIN");
         }

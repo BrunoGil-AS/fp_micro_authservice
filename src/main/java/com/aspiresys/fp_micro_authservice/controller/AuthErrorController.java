@@ -11,7 +11,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 
+import lombok.extern.java.Log;
+
 @Controller
+@Log
 public class AuthErrorController implements ErrorController {
 
     @GetMapping("/error")
@@ -19,6 +22,8 @@ public class AuthErrorController implements ErrorController {
             HttpServletRequest request,
             Model model,
             @RequestParam Map<String, String> allParams) {
+        
+        log.info("Handling error request - Path: " + request.getRequestURI());
         
         // Get error information
         Integer statusCode = (Integer) request.getAttribute("javax.servlet.error.status_code");
@@ -31,6 +36,7 @@ public class AuthErrorController implements ErrorController {
         
         // Handle 404 errors differently
         if (statusCode != null && statusCode == 404) {
+            log.warning("404 Not Found - Requested path: " + errorPath + " - User authenticated: " + isAuthenticated);
             model.addAttribute("is404", true);
             model.addAttribute("requestedPath", errorPath);
             model.addAttribute("isAuthenticated", isAuthenticated);
@@ -51,17 +57,16 @@ public class AuthErrorController implements ErrorController {
         model.addAttribute("errorPath", errorPath);
         model.addAttribute("requestParams", allParams);
         
-        // Log for debugging
-        System.out.println("=== AUTH ERROR DEBUG ===");
-        System.out.println("Status Code: " + statusCode);
-        System.out.println("Error Message: " + errorMessage);
-        System.out.println("Error Path: " + errorPath);
-        System.out.println("Request Parameters: " + allParams);
-        System.out.println("User Authenticated: " + isAuthenticated);
-        System.out.println("========================");
+        // Log error details for debugging
+        log.severe("Error occurred - Status: " + statusCode + ", Message: " + errorMessage + ", Path: " + errorPath);
+        if (!allParams.isEmpty()) {
+            log.info("Request parameters: " + allParams);
+        }
         
         // If it's an OAuth2 related error, show specific information
         if (allParams.containsKey("response_type")) {
+            log.warning("OAuth2 authorization error detected - Client ID: " + allParams.get("client_id") + 
+                       ", Redirect URI: " + allParams.get("redirect_uri"));
             model.addAttribute("oauthError", true);
             model.addAttribute("clientId", allParams.get("client_id"));
             model.addAttribute("redirectUri", allParams.get("redirect_uri"));
@@ -69,12 +74,15 @@ public class AuthErrorController implements ErrorController {
             
             // If there's a code_challenge, it's PKCE
             if (allParams.containsKey("code_challenge")) {
+                log.info("PKCE flow detected in OAuth2 error - Code challenge method: " + 
+                        allParams.get("code_challenge_method"));
                 model.addAttribute("pkceFlow", true);
                 model.addAttribute("codeChallenge", allParams.get("code_challenge"));
                 model.addAttribute("codeChallengeMethod", allParams.get("code_challenge_method"));
             }
         }
         
+        log.info("Returning error view for status code: " + statusCode);
         return "error"; // Returns the error.html view
     }
 }
