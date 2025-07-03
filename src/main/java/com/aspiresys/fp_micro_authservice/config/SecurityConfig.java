@@ -26,6 +26,12 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
+// import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
@@ -108,12 +114,43 @@ public class SecurityConfig {
                 .logoutSuccessUrl("/login?logout=true")
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID")
-                .permitAll());
+                .permitAll())
+            .requestCache(requestCache -> requestCache
+                .requestCache(customRequestCache())
+            );
 
         return http.build();
     }
 
-    // Password encoder (to save and verify hashed passwords)
+    /**
+     * Provides a custom RequestCache for handling OAuth2 authorization requests.
+     * <p>
+     * This bean customizes the request cache to only store requests to the OAuth2 authorization endpoint.
+     * It prevents automatic requests (like DevTools) from overriding the saved request.
+     * * @return a {@link RequestCache} that only caches requests to the OAuth2 authorization endpoint
+     * <p>
+     */
+    @Bean
+    public RequestCache customRequestCache() {
+        HttpSessionRequestCache requestCache = new HttpSessionRequestCache();
+        // Usar un matcher funcional compatible con la versión de Spring
+        requestCache.setRequestMatcher(new RequestMatcher() {
+            @Override
+            public boolean matches(HttpServletRequest request) {
+                return "/oauth2/authorize".equals(request.getRequestURI());
+            }
+        });
+
+        return requestCache;
+    }
+
+    /**
+     * Provides a PasswordEncoder bean for encoding passwords.
+     * 
+     * <p>
+     * @return a {@link PasswordEncoder} that uses BCrypt for secure password hashing
+     * </p>
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
