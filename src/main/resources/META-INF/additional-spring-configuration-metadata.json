@@ -1,0 +1,10 @@
+{
+  "properties": [
+    {
+      "name": "service.env.frontend.server",
+      "type": "java.lang.String",
+      "description": "Environment variable for the frontend server URL",
+      "defaultValue": "http://localhost:3000"
+    }
+  ]
+}

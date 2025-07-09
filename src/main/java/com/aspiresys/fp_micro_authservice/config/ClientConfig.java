@@ -1,5 +1,6 @@
 package com.aspiresys.fp_micro_authservice.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -13,6 +14,8 @@ import java.util.UUID;
 
 @Configuration
 public class ClientConfig {
+    @Value("${service.env.frontend.server}")
+    private String frontendUrl;
 
     @Bean
     public RegisteredClientRepository registeredClientRepository() {
@@ -49,8 +52,8 @@ public class ClientConfig {
             .clientAuthenticationMethod(ClientAuthenticationMethod.NONE) // Public, no secret
             .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
             .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN) // Enable refresh tokens
-            .redirectUri("http://localhost:3000/callback") // Change this according to your frontend URL
-            .postLogoutRedirectUri("http://localhost:3000/") // URL after logout
+            .redirectUri((frontendUrl+"/callback")) // Change this according to your frontend URL
+            .postLogoutRedirectUri(frontendUrl) // URL after logout
             .scope("openid")
             .scope("profile")
             .scope("api.read")
