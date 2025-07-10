@@ -5,6 +5,12 @@
       "type": "java.lang.String",
       "description": "Environment variable for the frontend server URL",
       "defaultValue": "http://localhost:3000"
+    },
+    {
+      "name": "service.env.auth.client.secret",
+      "type": "java.lang.String",
+      "description": "Environment variable for the authentication client secret",
+      "defaultValue": "{noop}12345"
     }
   ]
 }

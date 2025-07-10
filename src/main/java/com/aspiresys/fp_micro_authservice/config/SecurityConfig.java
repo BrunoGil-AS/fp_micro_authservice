@@ -39,6 +39,8 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.aspiresys.fp_micro_authservice.config.AuthConstants.*;
+
 @Configuration
 public class SecurityConfig {
 
@@ -74,7 +76,6 @@ public class SecurityConfig {
                 )
             );
 
-        System.out.println("=== AUTHORIZATION SERVER FILTER CHAIN CONFIGURED ===");
         return http.build();
     }
 
@@ -97,13 +98,11 @@ public class SecurityConfig {
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/api/register").permitAll() // API registration endpoint
-                .requestMatchers("/user/register").permitAll() // Web registration page
-                .requestMatchers("/oauth2/consent").permitAll() // OAuth2 consent page
-                .requestMatchers("/oauth2/server-info", "/oauth2/test-direct").permitAll() // OAuth2 info endpoints
-                .requestMatchers("/error").permitAll() // Error handling page
-                .requestMatchers("/login").permitAll() // Login page
-                .requestMatchers("/css/**", "/js/**", "/images/**").permitAll() // Static resources
+                .requestMatchers(PUBLIC_AUTH_REGISTRATION).permitAll() // API registration endpoint
+                .requestMatchers(PUBLIC_OAUTH_ENDPOINTS).permitAll() // OAuth2 endpoints
+                .requestMatchers(PUBLIC_ERROR_ENDPOINTS).permitAll() // Error handling page
+                .requestMatchers(PUBLIC_LOGIN_ENDPOINTS).permitAll() // Login page
+                .requestMatchers(PUBLIC_STATIC_RESOURCES).permitAll() // Static resources
                 .anyRequest().authenticated())
             .formLogin(form -> form
                 .loginPage("/login")
@@ -211,7 +210,7 @@ public class SecurityConfig {
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toSet());
 
-                context.getClaims().claim("roles", roles);
+                context.getClaims().claim(CLAIM_ROLES, roles);
             }
         };
     }

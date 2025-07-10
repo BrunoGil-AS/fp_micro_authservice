@@ -13,6 +13,21 @@ import java.util.Map;
 
 import lombok.extern.java.Log;
 
+/**
+ * Controller responsible for handling application errors and rendering a user-friendly error page.
+ * <p>
+ * This controller intercepts requests to the "/error" endpoint and provides detailed error information
+ * to the view, including HTTP status codes, error messages, and request parameters. It also customizes
+ * the error response based on the type of error (e.g., 404 Not Found) and the user's authentication status.
+ * <p>
+ * For OAuth2-related errors, additional context is provided, such as client ID, redirect URI, and PKCE flow details.
+ * All relevant information is added to the model for display in the error view.
+ * <p>
+ * Logging is performed at various levels (info, warning, severe) to aid in debugging and monitoring error occurrences.
+ *
+ * @author bruno.gil
+ * @see org.springframework.boot.web.servlet.error.ErrorController
+ */
 @Controller
 @Log
 public class AuthErrorController implements ErrorController {

@@ -9,6 +9,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 
+/**
+ * Controller providing endpoints for inspecting and testing the OAuth2 Authorization Server configuration.
+ * <p>
+ * Exposes endpoints to:
+ * <ul>
+ *   <li>Retrieve server and registered client information for diagnostics and verification.</li>
+ *   <li>Test direct reachability of the authorization endpoint for troubleshooting routing issues.</li>
+ * </ul>
+ * <p>
+ * Endpoints:
+ * <ul>
+ *   <li><b>GET /oauth2/server-info</b>: Returns details about the authorization server, its endpoints, and registered clients.</li>
+ *   <li><b>GET /oauth2/test-direct</b>: Simple endpoint to verify controller reachability and provide guidance for testing the authorization endpoint.</li>
+ * </ul>
+ */
 @RestController
 @RequestMapping("/oauth2")
 public class OAuth2InfoController {

@@ -15,6 +15,40 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.*;
 
+/**
+ * Controller responsible for handling OAuth2 consent interactions.
+ * <p>
+ * This controller displays the consent page to the user, allowing them to authorize
+ * a client application's access to specific scopes. It retrieves client information,
+ * checks for previously granted consents, and prepares the data required for the consent view.
+ * </p>
+ * <p>
+ * The controller also provides utility methods to enrich scopes with user-friendly descriptions
+ * for display purposes.
+ * </p>
+ *
+ * <p><b>Endpoints:</b></p>
+ * <ul>
+ *   <li><b>GET /oauth2/consent</b>: Displays the consent page for the user to approve or deny requested scopes.</li>
+ * </ul>
+ *
+ * <p>
+ * Dependencies:
+ * <ul>
+ *   <li>{@link RegisteredClientRepository} - For retrieving client registration details.</li>
+ *   <li>{@link OAuth2AuthorizationConsentService} - For managing user consent records.</li>
+ * </ul>
+ * </p>
+ *
+ * <p>
+ * Inner Classes:
+ * <ul>
+ *   <li><b>ScopeWithDescription</b>: Represents a scope along with a human-readable description.</li>
+ * </ul>
+ * </p>
+ *
+ * @author Your Name
+ */
 @Controller
 public class OAuth2ConsentController {
 

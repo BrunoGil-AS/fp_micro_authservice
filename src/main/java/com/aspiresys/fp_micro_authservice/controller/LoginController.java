@@ -10,6 +10,24 @@ import lombok.extern.java.Log;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+/**
+ * Controller responsible for handling login and home page requests.
+ * <p>
+ * Provides endpoints for displaying the login page, handling login errors and logout messages,
+ * and redirecting authenticated users to the home page. Also serves the welcome page at the root URL.
+ * </p>
+ *
+ * <ul>
+ *   <li><b>/login</b>: Displays the login page, shows error messages for failed authentication,
+ *       and displays a logout success message when applicable. Redirects already authenticated users to the home page.</li>
+ *   <li><b>/</b>: Serves the welcome page for authenticated users.</li>
+ * </ul>
+ *
+ * <p>
+ * Uses Spring Security's {@link org.springframework.security.core.context.SecurityContextHolder}
+ * to determine authentication status.
+ * </p>
+ */
 @Controller
 @Log
 public class LoginController {

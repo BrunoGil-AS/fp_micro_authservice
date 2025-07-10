@@ -10,13 +10,31 @@ import com.aspiresys.fp_micro_authservice.user.AppUserRepository;
 import com.aspiresys.fp_micro_authservice.user.role.Role;
 import com.aspiresys.fp_micro_authservice.user.role.RoleRepository;
 
+import lombok.extern.java.Log;
+
 import java.util.Set;
 
+import static com.aspiresys.fp_micro_authservice.config.AuthConstants.*;
+
 /**
- * Componente que inicializa datos básicos en la base de datos al arranque de la aplicación.
- * Crea roles por defecto y un usuario administrador si no existen.
+ * DataInitializer is a Spring component that initializes essential data in the database
+ * when the application starts. It implements {@link CommandLineRunner} to execute its logic
+ * after the Spring Boot application context is loaded.
+ * <p>
+ * This class ensures that the default roles ("ROLE_USER" and "ROLE_ADMIN") exist in the system,
+ * and creates an initial admin user with the "ROLE_ADMIN" role if it does not already exist.
+ * <p>
+ * The admin user's credentials are:
+ * <ul>
+ *   <li>Username: adminUser@adminProducts.com</li>
+ *   <li>Password: admin123</li>
+ * </ul>
+ * <p>
+ * Dependencies are injected via Spring's {@code @Autowired} annotation.
+ * Logging is provided to indicate the creation of roles and the admin user.
  */
 @Component
+@Log
 public class DataInitializer implements CommandLineRunner {
 
     @Autowired
@@ -34,46 +52,44 @@ public class DataInitializer implements CommandLineRunner {
         initializeAdminUser();
     }
 
-    /**
-     * Inicializa los roles básicos del sistema si no existen.
-     */
+    
     private void initializeRoles() {
-        // Crear rol USER si no existe
-        if (roleRepository.findByName("ROLE_USER").isEmpty()) {
+        
+        if (roleRepository.findByName(ROLE_USER).isEmpty()) {
             Role userRole = new Role();
-            userRole.setName("ROLE_USER");
+            userRole.setName(ROLE_USER);
             roleRepository.save(userRole);
-            System.out.println("Rol ROLE_USER creado exitosamente");
+            log.info("Role " + ROLE_USER + " created successfully");
         }
 
-        // Crear rol ADMIN si no existe
-        if (roleRepository.findByName("ROLE_ADMIN").isEmpty()) {
+        
+        if (roleRepository.findByName(ROLE_ADMIN).isEmpty()) {
             Role adminRole = new Role();
-            adminRole.setName("ROLE_ADMIN");
+            adminRole.setName(ROLE_ADMIN);
             roleRepository.save(adminRole);
-            System.out.println("Rol ROLE_ADMIN creado exitosamente");
+            log.info("Role " + ROLE_ADMIN + " created successfully");
         }
     }
 
-    /**
-     * Crea un usuario administrador por defecto si no existe.
-     */
+    
     private void initializeAdminUser() {
-        if (userRepository.findByUsername("adminUser@adminProducts.com").isEmpty()) {
-            Role adminRole = roleRepository.findByName("ROLE_ADMIN")
-                    .orElseThrow(() -> new RuntimeException("ROLE_ADMIN no encontrado"));
+        if (userRepository.findByUsername(ADMIN_USERNAME).isEmpty()) {
+            Role adminRole = roleRepository.findByName(ROLE_ADMIN)
+                    .orElseThrow(() -> new RuntimeException(ROLE_ADMIN + " no encontrado"));
             
             AppUser adminUser = AppUser.builder()
-                    .username("adminUser@adminProducts.com")
-                    .password(passwordEncoder.encode("admin123"))
+                    .username(ADMIN_USERNAME)
+                    .password(passwordEncoder.encode(ADMIN_PASSWORD))
                     .roles(Set.of(adminRole))
                     .build();
             
             userRepository.save(adminUser);
-            System.out.println("Usuario administrador creado exitosamente:");
-            System.out.println("  Username: adminUser@adminProducts.com");
-            System.out.println("  Password: admin123");
-            System.out.println("  Roles: ROLE_ADMIN");
+            StringBuilder sb = new StringBuilder();
+            sb.append("Admin user created successfully:\n")
+              .append("  Username: ").append(ADMIN_USERNAME).append("\n")
+              .append("  Password: ").append(ADMIN_PASSWORD).append("\n")
+              .append("  Roles: ").append(ROLE_ADMIN);
+            log.info(sb.toString());
         }
     }
 }
