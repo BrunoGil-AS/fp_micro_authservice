@@ -5,6 +5,8 @@ import com.nimbusds.jose.jwk.source.*;
 import com.nimbusds.jose.proc.SecurityContext;
 
 import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -28,7 +30,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
-// import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -43,6 +44,9 @@ import static com.aspiresys.fp_micro_authservice.config.AuthConstants.*;
 
 @Configuration
 public class SecurityConfig {
+
+    @Value("${service.env.frontend.server}")
+    private String frontendServerUrl;
 
     /**
      * Specific configuration for OAuth2 Authorization Server.
@@ -232,7 +236,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:3000");
+        configuration.addAllowedOrigin(frontendServerUrl);
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);
