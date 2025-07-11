@@ -41,6 +41,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.aspiresys.fp_micro_authservice.config.AuthConstants.*;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 
 @Configuration
 public class SecurityConfig {
@@ -271,6 +273,22 @@ public class SecurityConfig {
     @Bean
     public OAuth2AuthorizationService authorizationService() {
         return new InMemoryOAuth2AuthorizationService();
+    }
+
+    /**
+     * Provides a JWT encoder for generating JWT tokens.
+     * <p>
+     * This bean creates a JWT encoder that uses the RSA keys from the JWK source
+     * to sign JWT tokens. It's used by the admin token controller to generate
+     * access tokens with admin privileges.
+     * </p>
+     *
+     * @param jwkSource the JWK source containing the signing keys
+     * @return a {@link JwtEncoder} for creating signed JWT tokens
+     */
+    @Bean
+    public JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
+        return new NimbusJwtEncoder(jwkSource);
     }
 }
 

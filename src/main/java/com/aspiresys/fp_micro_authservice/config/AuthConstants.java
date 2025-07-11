@@ -59,4 +59,7 @@ public final class AuthConstants {
     public static final String[] PUBLIC_ERROR_ENDPOINTS = {"/error"};
     public static final String[] PUBLIC_LOGIN_ENDPOINTS = {"/login"};
     public static final String[] PUBLIC_STATIC_RESOURCES = {"/css/**", "/js/**", "/images/**"};
+    
+    // Admin endpoints (require authentication and ADMIN role)
+    public static final String[] ADMIN_ENDPOINTS = {"/admin/**"};
 }
