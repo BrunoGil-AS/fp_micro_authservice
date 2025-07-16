@@ -14,6 +14,9 @@ import org.springframework.ui.Model;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/** Unit tests for LoginController 
+ * This class tests the login functionality of the application, ensuring that it behaves correctly under various conditions.
+ */
 @ExtendWith(MockitoExtension.class)
 class LoginControllerTest {
 
@@ -36,14 +39,14 @@ class LoginControllerTest {
 
     @Test
     void shouldShowLoginPageWhenNotAuthenticated() {
-        // Configurar usuario no autenticado
+        // Unauthenticated user setup
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.isAuthenticated()).thenReturn(false);
 
-        // Ejecutar
+        // Execute
         String viewName = loginController.login(null, null, model);
 
-        // Verificar
+        // Verify
         assertEquals("login", viewName);
         verify(model, never()).addAttribute(eq("error"), any());
         verify(model, never()).addAttribute(eq("message"), any());
@@ -51,26 +54,26 @@ class LoginControllerTest {
 
     @Test
     void shouldRedirectToHomeWhenAlreadyAuthenticated() {
-        // Configurar usuario autenticado
+        // Authenticated user setup
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.isAuthenticated()).thenReturn(true);
         when(authentication.getName()).thenReturn("user@example.com");
 
-        // Ejecutar
+        // Execute
         String viewName = loginController.login(null, null, model);
 
-        // Verificar
+        // Verify
         assertEquals("redirect:/", viewName);
         verify(model, never()).addAttribute(any(), any());
     }
 
     @Test
     void shouldShowErrorMessageOnFailedLogin() {
-        // Configurar usuario no autenticado con error
+        // Unauthenticated user setup with error
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.isAuthenticated()).thenReturn(false);
 
-        // Ejecutar
+        // Execute
         String viewName = loginController.login("true", null, model);
 
         // Verificar
@@ -80,65 +83,55 @@ class LoginControllerTest {
 
     @Test
     void shouldShowLogoutMessageAfterLogout() {
-        // Configurar usuario no autenticado después de logout
+        // Unauthenticated user setup after logout
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.isAuthenticated()).thenReturn(false);
 
-        // Ejecutar
+        // Execute
         String viewName = loginController.login(null, "true", model);
 
-        // Verificar
+        // Verify
         assertEquals("login", viewName);
         verify(model).addAttribute("message", "You have logged out successfully");
     }
 
     @Test
     void shouldHandleExceptionsGracefully() {
-        // Configurar que se lance una excepción
+        // Configure that an exception is thrown
         when(securityContext.getAuthentication()).thenThrow(new RuntimeException("Security context error"));
 
-        // Ejecutar
+        // Execute
         String viewName = loginController.login(null, null, model);
 
-        // Verificar
+        // Verify
         assertEquals("login", viewName);
         verify(model).addAttribute(eq("error"), contains("An error occurred during login"));
     }
 
     @Test
     void shouldReturnHomeView() {
-        // Ejecutar
-        String viewName = loginController.home();
 
-        // Verificar
+        String viewName = loginController.home();
         assertEquals("welcome", viewName);
     }
 
     @Test
     void shouldNotShowErrorOrLogoutMessageWhenNoParameters() {
-        // Configurar usuario no autenticado
+        // Unauthenticated user setup
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.isAuthenticated()).thenReturn(false);
-
-        // Ejecutar
         String viewName = loginController.login(null, null, model);
-
-        // Verificar
         assertEquals("login", viewName);
         verify(model, never()).addAttribute(any(), any());
     }
 
     @Test
     void shouldHandleAnonymousUser() {
-        // Configurar usuario anónimo
+        // Unauthenticated user setup
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.isAuthenticated()).thenReturn(true);
         when(authentication.getName()).thenReturn("anonymousUser");
-
-        // Ejecutar
         String viewName = loginController.login(null, null, model);
-
-        // Verificar
         assertEquals("login", viewName);
         verify(model, never()).addAttribute(any(), any());
     }

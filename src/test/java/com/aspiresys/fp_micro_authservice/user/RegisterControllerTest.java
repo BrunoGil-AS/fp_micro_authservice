@@ -18,6 +18,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for RegisterController
+ * This class tests the user registration functionality, ensuring that it behaves correctly under various conditions.
+ */
 @ExtendWith(MockitoExtension.class)
 class RegisterControllerTest {
 
@@ -48,16 +52,16 @@ class RegisterControllerTest {
 
     @Test
     void shouldRegisterNewUserSuccessfully() {
-        // Configurar comportamiento de los mocks
+        // Mocking behavior
         when(userRepository.findByUsername(testUser.getUsername())).thenReturn(Optional.empty());
         when(passwordEncoder.encode(testUser.getPassword())).thenReturn("encodedPassword");
         when(roleRepository.findByName("ROLE_USER")).thenReturn(Optional.of(userRole));
         when(userRepository.save(any(AppUser.class))).thenReturn(testUser);
 
-        // Ejecutar el registro
+        // Execute registration
         ResponseEntity<String> response = registerController.registerUser(testUser);
 
-        // Verificaciones
+        // Verify
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("User registered successfully", response.getBody());
         verify(userRepository).save(any(AppUser.class));
@@ -65,13 +69,13 @@ class RegisterControllerTest {
 
     @Test
     void shouldReturnConflictWhenUserAlreadyExists() {
-        // Configurar que el usuario ya existe
+        // Mocking behavior
         when(userRepository.findByUsername(testUser.getUsername())).thenReturn(Optional.of(testUser));
 
-        // Ejecutar el registro
+        // Execute registration
         ResponseEntity<String> response = registerController.registerUser(testUser);
 
-        // Verificaciones
+        // Verify
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
         assertEquals("User already exists", response.getBody());
         verify(userRepository, never()).save(any(AppUser.class));
@@ -79,14 +83,14 @@ class RegisterControllerTest {
 
     @Test
     void shouldReturnErrorWhenDefaultRoleNotFound() {
-        // Configurar que el usuario no existe pero el rol por defecto no se encuentra
+        // Mocking behavior
         when(userRepository.findByUsername(testUser.getUsername())).thenReturn(Optional.empty());
         when(roleRepository.findByName("ROLE_USER")).thenReturn(Optional.empty());
 
-        // Ejecutar el registro
+        // Execute registration
         ResponseEntity<String> response = registerController.registerUser(testUser);
 
-        // Verificaciones
+        // Verify
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertTrue(response.getBody().contains("Default role not found"));
         verify(userRepository, never()).save(any(AppUser.class));
@@ -94,35 +98,35 @@ class RegisterControllerTest {
 
     @Test
     void shouldHandleExceptionsGracefully() {
-        // Configurar que se lance una excepción al guardar
+        // Mocking behavior
         when(userRepository.findByUsername(testUser.getUsername())).thenReturn(Optional.empty());
         when(roleRepository.findByName("ROLE_USER")).thenReturn(Optional.of(userRole));
         when(userRepository.save(any(AppUser.class))).thenThrow(new RuntimeException("Database error"));
 
-        // Ejecutar el registro
+        // Execute registration
         ResponseEntity<String> response = registerController.registerUser(testUser);
 
-        // Verificaciones
+        // Verify
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertTrue(response.getBody().contains("Error registering user"));
     }
 
     @Test
     void shouldEncodePasswordBeforeSaving() {
-        // Configurar comportamiento normal de los mocks
+        // Mocking behavior
         when(userRepository.findByUsername(testUser.getUsername())).thenReturn(Optional.empty());
         when(passwordEncoder.encode("password123")).thenReturn("encodedPassword");
         when(roleRepository.findByName("ROLE_USER")).thenReturn(Optional.of(userRole));
         when(userRepository.save(any(AppUser.class))).thenReturn(testUser);
 
-        // Ejecutar el registro
+        // Execute registration
         registerController.registerUser(testUser);
 
-        // Verificar que se llamó al codificador de contraseñas
+        // Verify that the password encoder was called
         verify(passwordEncoder).encode("password123");
-        
-        // Verificar que se guardó el usuario con la contraseña codificada
-        verify(userRepository).save(argThat(user -> 
+
+        // Verify that the user was saved with the encoded password
+        verify(userRepository).save(argThat(user ->
             user.getPassword().equals("encodedPassword")
         ));
     }
