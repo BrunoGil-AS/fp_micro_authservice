@@ -147,7 +147,7 @@ service.env.auth.client.secret={noop}12345
 
 ### 1. Main Application Class
 
-**File**: `src/main/java/com/aspiresys/fp_micro_authservice/FpMicroAuthserviceApplication.java`
+**File**: [`FpMicroAuthserviceApplication.java`](src/main/java/com/aspiresys/fp_micro_authservice/FpMicroAuthserviceApplication.java)
 
 ```java
 @SpringBootApplication
@@ -182,7 +182,7 @@ public class FpMicroAuthserviceApplication {
 
 ### 2. Security Configuration
 
-**File**: `src/main/java/com/aspiresys/fp_micro_authservice/config/SecurityConfig.java`
+**File**: [`SecurityConfig.java`](src/main/java/com/aspiresys/fp_micro_authservice/config/SecurityConfig.java)
 
 This class implements dual security filter chains:
 
@@ -275,7 +275,7 @@ public OAuth2TokenCustomizer<JwtEncodingContext> jwtCustomizer() {
 
 ### 3. OAuth2 Client Configuration
 
-**File**: `src/main/java/com/aspiresys/fp_micro_authservice/config/ClientConfig.java`
+**File**: [`ClientConfig.java`](src/main/java/com/aspiresys/fp_micro_authservice/config/ClientConfig.java)
 
 Defines two OAuth2 clients:
 
@@ -320,7 +320,7 @@ RegisteredClient reactClient = RegisteredClient.withId(UUID.randomUUID().toStrin
 
 ### 4. Data Initialization
 
-**File**: `src/main/java/com/aspiresys/fp_micro_authservice/config/DataInitializer.java`
+**File**: [`DataInitializer.java`](src/main/java/com/aspiresys/fp_micro_authservice/config/DataInitializer.java)
 
 Automatically creates default roles and admin user:
 
@@ -371,7 +371,7 @@ public class DataInitializer implements CommandLineRunner {
 
 ### 5. User Entity and Repository
 
-**File**: `src/main/java/com/aspiresys/fp_micro_authservice/user/AppUser.java`
+**File**: [`AppUser.java`](src/main/java/com/aspiresys/fp_micro_authservice/user/AppUser.java)
 
 ```java
 @Entity
@@ -395,7 +395,7 @@ public class AppUser {
 
 ### 6. Constants Definition
 
-**File**: `src/main/java/com/aspiresys/fp_micro_authservice/config/AuthConstants.java`
+**File**: [`AuthConstants.java`](src/main/java/com/aspiresys/fp_micro_authservice/config/AuthConstants.java)
 
 ```java
 public final class AuthConstants {
@@ -822,11 +822,3 @@ spring.application.name=auth-service
 3. Update documentation for configuration changes
 4. Ensure security best practices are maintained
 5. Test OAuth2 flows thoroughly
-
-## References
-
-- [Spring Authorization Server Documentation](https://docs.spring.io/spring-authorization-server/docs/current/reference/html/)
-- [OAuth2 RFC 6749](https://tools.ietf.org/html/rfc6749)
-- [OpenID Connect Specification](https://openid.net/connect/)
-- [PKCE RFC 7636](https://tools.ietf.org/html/rfc7636)
-- [Spring Security Documentation](https://docs.spring.io/spring-security/reference/)
