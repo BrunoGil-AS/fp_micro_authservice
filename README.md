@@ -180,6 +180,8 @@ public class FpMicroAuthserviceApplication {
 }
 ```
 
+The `DataSeeder` component initializes default roles and a test user on application startup. It checks if the `ROLE_USER` exists and creates it if not. It also creates a test user with the username `testUser@example.com` and password `1234`.
+
 ### 2. Security Configuration
 
 **File**: [`SecurityConfig.java`](src/main/java/com/aspiresys/fp_micro_authservice/config/SecurityConfig.java)
@@ -244,6 +246,14 @@ public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws 
 }
 ```
 
+This `Bean` called `defaultSecurityFilterChain` configures the default security filter chain for the application:
+
+- **CSRF Protection**: Enabled with a cookie-based CSRF token repository.
+- **CORS Configuration**: Allows cross-origin requests.
+- **Authorization Rules**: Defines public endpoints for registration, consent, and static resources, while securing all other endpoints.
+- **Form Login**: Custom login page with success and failure URLs.
+- **Logout**: Configures logout behavior, including invalidating the session and deleting cookies.
+
 #### JWT Configuration
 
 ```java
@@ -273,6 +283,11 @@ public OAuth2TokenCustomizer<JwtEncodingContext> jwtCustomizer() {
 }
 ```
 
+This configuration generates RSA keys for signing JWT tokens and customizes the JWT claims to include user roles:
+
+- **jwkSource**: This bean generates RSA keys and creates a JWK set for JWT signing.
+- **jwtCustomizer**: This bean customizes the JWT claims to include user roles, which are extracted from the authenticated principal's authorities.
+
 ### 3. OAuth2 Client Configuration
 
 **File**: [`ClientConfig.java`](src/main/java/com/aspiresys/fp_micro_authservice/config/ClientConfig.java)
@@ -282,6 +297,7 @@ Defines two OAuth2 clients:
 #### API Gateway Client (Machine-to-Machine)
 
 ```java
+@Bean
 RegisteredClient gatewayClient = RegisteredClient.withId(UUID.randomUUID().toString())
     .clientId("fp_micro_gateway")
     .clientSecret(authClientSecret)
@@ -291,6 +307,8 @@ RegisteredClient gatewayClient = RegisteredClient.withId(UUID.randomUUID().toStr
     .scope("gateway.write")
     .build();
 ```
+
+This bean defines the API Gateway client with the necessary credentials and scopes.
 
 #### Frontend Client (Public with PKCE)
 
@@ -317,6 +335,10 @@ RegisteredClient reactClient = RegisteredClient.withId(UUID.randomUUID().toStrin
         .build())
     .build();
 ```
+
+This bean defines the frontend client with PKCE support, allowing secure authorization code flow.
+
+- **PKCE**: Proof Key for Code Exchange is enabled for enhanced security.
 
 ### 4. Data Initialization
 
@@ -369,6 +391,8 @@ public class DataInitializer implements CommandLineRunner {
 }
 ```
 
+This class initializes the database with default roles and an admin user on application startup. It checks if the `ROLE_USER` and `ROLE_ADMIN` exist and creates them if not. It also creates an admin user with the username `adminUser@adminProducts.com`.
+
 ### 5. User Entity and Repository
 
 **File**: [`AppUser.java`](src/main/java/com/aspiresys/fp_micro_authservice/user/AppUser.java)
@@ -392,6 +416,8 @@ public class AppUser {
     private Set<Role> roles = new HashSet<>();
 }
 ```
+
+This entity represents a user in the system, with fields for username, password, and roles. It uses JPA annotations for persistence and Lombok annotations for boilerplate code reduction.
 
 ### 6. Constants Definition
 
@@ -427,6 +453,8 @@ public final class AuthConstants {
     public static final String[] PUBLIC_STATIC_RESOURCES = {"/css/**", "/js/**", "/images/**"};
 }
 ```
+
+This class defines constants used throughout the application, including client IDs, OAuth2 scopes, roles, admin credentials, and public endpoints.
 
 ## API Endpoints
 
