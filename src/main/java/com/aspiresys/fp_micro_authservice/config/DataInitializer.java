@@ -75,7 +75,7 @@ public class DataInitializer implements CommandLineRunner {
     private void initializeAdminUser() {
         if (userRepository.findByUsername(ADMIN_USERNAME).isEmpty()) {
             Role adminRole = roleRepository.findByName(ROLE_ADMIN)
-                    .orElseThrow(() -> new RuntimeException(ROLE_ADMIN + " no encontrado"));
+                    .orElseThrow(() -> new RuntimeException(ROLE_ADMIN + " not found"));
             
             AppUser adminUser = AppUser.builder()
                     .username(ADMIN_USERNAME)
