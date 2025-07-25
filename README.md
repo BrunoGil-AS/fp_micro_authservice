@@ -73,7 +73,11 @@ The main configuration is located in [`application.properties`](src/main/resourc
 
 ```properties
 spring.application.name=fp_micro_authservice
+```
 
+[`Dev`](src/main/resources/application-dev.properties) profile includes more configurations as connection to config server and environment variables
+
+```properties
 # Config client configuration
 spring.config.import=optional:configserver:http://localhost:8888
 
@@ -88,32 +92,29 @@ logging.level.org.springframework.security=DEBUG
 
 ### External Configuration
 
-The external configuration is managed via Config Server in `fp_micro_authservice.properties`:
+The external configuration is managed via Config Server in [`fp_micro_authservice.properties`](../fp_files_configproperties/authservice/fp_micro_authservice-dev.properties):
 
 ```properties
 # Server Configuration
-server.port=8081
-spring.application.name=auth-service
+# environment configuration for development
+service.env.frontend.server=http://localhost:3000
+service.env.auth.client.secret={noop}12345
 
-# Database Configuration
+#i want to see logs from web request and security
+logging.level.org.springframework.web=DEBUG
+logging.level.org.springframework.security=DEBUG
+
+# Configuración de base de datos del auth-service
 spring.datasource.url=jdbc:mysql://localhost:3306/auth_db?allowPublicKeyRetrieval=true&useSSL=false
 spring.datasource.username=service_auth
 spring.datasource.password=securePassword123
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
-
-# JPA Configuration
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
 
-# HikariCP Connection Pool
-spring.datasource.hikari.maximum-pool-size=10
-spring.datasource.hikari.minimum-idle=2
-spring.datasource.hikari.idle-timeout=30000
-spring.datasource.hikari.max-lifetime=1800000
-spring.datasource.hikari.connection-timeout=20000
 
-# OAuth2 Authorization Server
+# Seguridad OAuth2 (Spring Authorization Server)
 spring.security.oauth2.authorizationserver.issuer-url=http://localhost:8081
 ```
 
