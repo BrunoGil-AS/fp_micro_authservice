@@ -8,6 +8,8 @@ This service handles user authentication, authorization code generation, JWT tok
 
 ## Architecture
 
+![Service Structure](<diagrams/Final Project - AuthFlow.png>)
+
 ```text
 ┌─────────────────┐
 │   Frontend      │
