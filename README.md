@@ -1,8 +1,8 @@
-# FP Micro Auth Service
+# Ecommerce Micro Auth Service
 
 ## Overview
 
-The **FP Micro Auth Service** is a Spring Boot OAuth2 Authorization Server that provides centralized authentication and authorization for the FP (Final Project) microservices ecosystem. It implements the OAuth2 and OpenID Connect protocols, serving as the identity provider for all other services in the system.
+The **Ecommerce Micro Auth Service** is a Spring Boot OAuth2 Authorization Server that provides centralized authentication and authorization for the Ecommerce (Final Project) microservices ecosystem. It implements the OAuth2 and OpenID Connect protocols, serving as the identity provider for all other services in the system.
 
 This service handles user authentication, authorization code generation, JWT token issuance, and user management. It acts as the security hub that enables secure communication between the gateway, microservices, and frontend applications.
 
